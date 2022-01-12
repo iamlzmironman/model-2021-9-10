@@ -10,7 +10,7 @@ using namespace std;
 #define L 100     //lattice  size
 #define SIZE 10000  //number of players
 #define MC_STEPS  100000 //run-time in MCS
-#define First_STEPS  1000 //run-time in MCS
+#define First_STEPS  10000 //run-time in MCS
 #define K  0.1  //noise effects
 #define TryTime 2
 #define S_steps 0.01
