@@ -9,7 +9,7 @@ using namespace std;
 
 #define L 100     //lattice  size
 #define SIZE 10000  //number of players
-#define MC_STEPS  10000 //run-time in MCS
+#define MC_STEPS  100000 //run-time in MCS
 #define First_STEPS  1000 //run-time in MCS
 #define K  0.1  //noise effects
 #define TryTime 2
@@ -23,13 +23,13 @@ struct Agent
 	double T;
 	short Strat;//contains players' strategies,1 cooperator,0 defector
 	int neighbours[4];//constains players's neighbours
-	double S;//±ê¼Ç²©ŞÄÀàĞÍ£º<0ÇôÍ½£¬>0Ñ©¶Ñ
+	double S;//æ ‡è®°åšå¼ˆç±»å‹ï¼š<0å›šå¾’ï¼Œ>0é›ªå †
 	int age;
 	double sum_payoff;
 	double aver_payoff;
 };
 struct Agent Player[SIZE];
-ofstream outfile, outResults;//outfile ÓÃÓÚÊä³ö×îºóµÄÌ¬£¬outResultsÓÃÓÚÊä³öÃ¿´ÎµÄ½á¹û
+ofstream outfile, outResults;//outfile ç”¨äºè¾“å‡ºæœ€åçš„æ€ï¼ŒoutResultsç”¨äºè¾“å‡ºæ¯æ¬¡çš„ç»“æœ
 long int Numsg[2][2];//count the number of four kinds of people
 double Result[4][TryTime];
 int index[SIZE], shufl[SIZE];
@@ -107,10 +107,10 @@ void Prodgraph(void)//defines nerghbors on a square lattice
 	{
 		for (j = 0; j < L; j++)
 		{
-			player1 = L * i + j;       /* consider a site >> a player ,iĞĞjÁĞÔªËØ*/
+			player1 = L * i + j;       /* consider a site >> a player ,iè¡Œjåˆ—å…ƒç´ */
 			iu = i + 1;  ju = j;           /* south */
 			if (iu == L) iu = 0;
-			player2 = L * iu + ju;   /* the location of player2£¬±ê¼Çplayer1µÄÁÚ¾Ó */
+			player2 = L * iu + ju;   /* the location of player2ï¼Œæ ‡è®°player1çš„é‚»å±… */
 			Player[player1].neighbours[0] = player2;      /* the east link of player1 ends at player 2 */
 			iu = i;      ju = j + 1;       /* east */
 			if (ju == L) ju = 0;
@@ -161,20 +161,20 @@ void Initial(void)
 			{
 				Player[playerX].Strat = 0;
 			}
-			if (Player[playerX].S <= 0 && Player[playerX].Strat == 0)//±³ÅÑ¡¢ÇôÍ½
+			if (Player[playerX].S <= 0 && Player[playerX].Strat == 0)//èƒŒå›ã€å›šå¾’
 				Numsg[0][0] += 1;
-			if (Player[playerX].S <= 0 && Player[playerX].Strat == 1)//ºÏ×÷¡¢ÇôÍ½
+			if (Player[playerX].S <= 0 && Player[playerX].Strat == 1)//åˆä½œã€å›šå¾’
 				Numsg[1][0] += 1;
-			if (Player[playerX].S > 0 && Player[playerX].Strat == 0)//±³ÅÑ¡¢Ñ©¶Ñ
+			if (Player[playerX].S > 0 && Player[playerX].Strat == 0)//èƒŒå›ã€é›ªå †
 				Numsg[0][1] += 1;
-			if (Player[playerX].S > 0 && Player[playerX].Strat == 1)//ºÏ×÷¡¢Ñ©¶Ñ
+			if (Player[playerX].S > 0 && Player[playerX].Strat == 1)//åˆä½œã€é›ªå †
 				Numsg[1][1] += 1;
 
 		}//j
 	}//i
 
 }
-/************************ĞÂÔöÂÒĞò*************************/
+/************************æ–°å¢ä¹±åº*************************/
 void shuffle(int index[], int aftershuf[]) {
 	for (int i = 0; i < SIZE; i++)
 		aftershuf[i] = index[i];
@@ -242,18 +242,18 @@ void strategyUpdating(int playerX)
 	}//end of a source selection	
 }
 
-/********************************ĞŞ¸Ä²©ŞÄ¾ºÕù½×¶Î****************************************/
+/********************************ä¿®æ”¹åšå¼ˆç«äº‰é˜¶æ®µ****************************************/
 
 void  gameCompetition(int playerSource, int playerTarget)
 {
 	double payoffSource, payoffTarget, cost;
-	//Èç¹ûÑ¡ÖĞµÄÊÇ¸Õ¸ÕÒÑ¾­½ÓÊÜ¹ı²ßÂÔÊä³öµÄ½Úµã£¬Ö±½Ó·µ»Ø£¬²»½øĞĞÈÎºÎ²Ù×÷
+	//å¦‚æœé€‰ä¸­çš„æ˜¯åˆšåˆšå·²ç»æ¥å—è¿‡ç­–ç•¥è¾“å‡ºçš„èŠ‚ç‚¹ï¼Œç›´æ¥è¿”å›ï¼Œä¸è¿›è¡Œä»»ä½•æ“ä½œ
 	if (Player[playerSource].age == 0 || Player[playerTarget].age == 0)
 		return;
-	//»ñÈ¡ÀúÊ·Æ½¾ùÊÕÒæ
+	//è·å–å†å²å¹³å‡æ”¶ç›Š
 	payoffSource = Player[playerSource].aver_payoff;
 	payoffTarget = Player[playerTarget].aver_payoff;
-	if (Player[playerTarget].S != Player[playerSource].S)//Ë«·½ÈÏÖª²»Í¬
+	if (Player[playerTarget].S != Player[playerSource].S)//åŒæ–¹è®¤çŸ¥ä¸åŒ
 	{
 		cost = Cost;
 		double probability = 1 / (1 + exp(((payoffTarget + cost) - payoffSource) / K));
@@ -269,10 +269,10 @@ void  gameCompetition(int playerSource, int playerTarget)
 				Numsg[Player[playerSource].Strat][1]++;
 				Numsg[Player[playerTarget].Strat][0]--;
 			}
-			//²©ŞÄÊä³ö
+			//åšå¼ˆè¾“å‡º
 			Player[playerTarget].T = Player[playerSource].T;
 			Player[playerTarget].S = Player[playerSource].S;
-			Player[playerTarget].Strat = Player[playerSource].Strat;//²ßÂÔÍÆ¹ã
+			Player[playerTarget].Strat = Player[playerSource].Strat;//ç­–ç•¥æ¨å¹¿
 			Player[playerTarget].age = 0;
 			Player[playerTarget].sum_payoff = 0;
 			Player[playerTarget].aver_payoff = 0;
@@ -280,7 +280,7 @@ void  gameCompetition(int playerSource, int playerTarget)
 	}
 }
 
-/****************************************²©ŞÄ¾ºÕùĞŞ¸Ä½áÊø**********************************************/
+/****************************************åšå¼ˆç«äº‰ä¿®æ”¹ç»“æŸ**********************************************/
 
 double AveragePI(int g)
 {
@@ -306,47 +306,47 @@ int main()
 	int test;
 	double P_dp, P_ds, P_cp, P_cs;
 	double AverP_dp, AverP_ds, AverP_cp, AverP_cs, AverP_c;
-	outResults.open("Results__ÑĞ¾¿´óĞ¡cost=0.xls", ios::app);
-	outfile.open("data__ÑĞ¾¿´óĞ¡cost=0.xls");
+	outResults.open("Results__ç ”ç©¶å¤§å°cost=0.xls", ios::app);
+	outfile.open("data__ç ”ç©¶å¤§å°cost=0.xls");
 	/****************new*******************/
-	//³õÊ¼»¯indexÊı×é
+	//åˆå§‹åŒ–indexæ•°ç»„
 	for (int i = 0; i < SIZE; i++)
 		index[i] = i;
 	/*****************end********************/
-	//³õÊ¼»¯¸öÌåµÄÁÚ¾Ó
+	//åˆå§‹åŒ–ä¸ªä½“çš„é‚»å±…
 	Prodgraph();
-	outResults << "»¨·Ñ" << "\t" << "|S|" << '\t' << "T" << "\t" << "±³ÅÑ-ÇôÍ½" << '\t' << "±³ÅÑ-²ĞÑ©" << '\t' << "ºÏ×÷-±³ÅÑ" << '\t' << "ºÏ×÷-²ĞÑ©" << '\t' << "ºÏ×÷Õß" << '\t' << "¹²´æ" << endl;
-	cout << "»¨·Ñ" << "\t" << "|S|" << '\t' << "T" << "\t" << "±³ÅÑ-ÇôÍ½" << '\t' << "±³ÅÑ-²ĞÑ©" << '\t' << "ºÏ×÷-±³ÅÑ" << '\t' << "ºÏ×÷-²ĞÑ©" << '\t' << "ºÏ×÷Õß" << '\t' << "¹²´æ" << endl;
-	for (Cost = 0; Cost <= 0; Cost += 1)//costÈ¡0,0.5,1,2,3,4,10
+	outResults << "èŠ±è´¹" << "\t" << "|S|" << '\t' << "T" << "\t" << "èƒŒå›-å›šå¾’" << '\t' << "èƒŒå›-æ®‹é›ª" << '\t' << "åˆä½œ-èƒŒå›" << '\t' << "åˆä½œ-æ®‹é›ª" << '\t' << "åˆä½œè€…" << '\t' << "å…±å­˜" << endl;
+	cout << "èŠ±è´¹" << "\t" << "|S|" << '\t' << "T" << "\t" << "èƒŒå›-å›šå¾’" << '\t' << "èƒŒå›-æ®‹é›ª" << '\t' << "åˆä½œ-èƒŒå›" << '\t' << "åˆä½œ-æ®‹é›ª" << '\t' << "åˆä½œè€…" << '\t' << "å…±å­˜" << endl;
+	for (Cost = 0; Cost <= 0; Cost += 1)//costå–0,0.5,1,2,3,4,10
 	{
 		for (b = 1; b <= 2.01; b += 0.01)
 		{
-			for (a = 0; a <= 1.01; a += 0.01)//¦È
+			for (a = 0; a <= 1.01; a += 0.01)//Î¸
 			{
 				for (test = 0; test < TryTime; test++)
 				{
 					Initial();//inital strategy distribution
 					for (steps = 0; steps < MC_STEPS; steps++)
 					{
-						/*****************************Ä£ĞÍĞŞ¸Ä****************************/
+						/*****************************æ¨¡å‹ä¿®æ”¹****************************/
 
-						//ËùÓĞplayer°´ÕÕÂÒĞòË³Ğò£¨²»ÖØ¸´Ëæ»úÑ¡Ôñ½Úµã£©½øĞĞ²ßÂÔ¸üĞÂ
+						//æ‰€æœ‰playeræŒ‰ç…§ä¹±åºé¡ºåºï¼ˆä¸é‡å¤éšæœºé€‰æ‹©èŠ‚ç‚¹ï¼‰è¿›è¡Œç­–ç•¥æ›´æ–°
 						shuffle(index, shufl);
 						for (i = 0; i < SIZE; i++)
 						{
 							playerX = shufl[i];//choose a source site
 							strategyUpdating(playerX);
 						}
-						//²»ÖØ¸´Ëæ»úÑ¡Ôñ½Úµã£¬¶ÔÈÎÒâÒ»¸öÁÚ¾Ó½øĞĞ¼ÛÖµ¹ÛÊä³ö
+						//ä¸é‡å¤éšæœºé€‰æ‹©èŠ‚ç‚¹ï¼Œå¯¹ä»»æ„ä¸€ä¸ªé‚»å±…è¿›è¡Œä»·å€¼è§‚è¾“å‡º
 						shuffle(index, shufl);
 						for (i = 0; i < SIZE; i++)
 						{
-							playerSource = shufl[i];//Ô´½Úµã£¬Êä³ö²©ŞÄ¼ÛÖµ¹ÛµÄ½Úµã
-							playerTarget = Player[playerSource].neighbours[(int)randi(4)];//Ëæ»úÑ¡ÔñÒ»¸öÁÚ¾Ó½Úµã×÷ÎªÄ¿±ê½Úµã£¬½ÓÊÜ¼ÛÖµ¹ÛÊä³ö
+							playerSource = shufl[i];//æºèŠ‚ç‚¹ï¼Œè¾“å‡ºåšå¼ˆä»·å€¼è§‚çš„èŠ‚ç‚¹
+							playerTarget = Player[playerSource].neighbours[(int)randi(4)];//éšæœºé€‰æ‹©ä¸€ä¸ªé‚»å±…èŠ‚ç‚¹ä½œä¸ºç›®æ ‡èŠ‚ç‚¹ï¼Œæ¥å—ä»·å€¼è§‚è¾“å‡º
 							gameCompetition(playerSource, playerTarget);
 						}//end of elementary MC step
 
-						/***********************Ä£ĞÍĞŞ¸Ä½áÊø***********************/
+						/***********************æ¨¡å‹ä¿®æ”¹ç»“æŸ***********************/
 						if (Numsg[0][0] + Numsg[1][0] == 0 || Numsg[0][1] + Numsg[1][1] == 0)
 						{
 							break;
